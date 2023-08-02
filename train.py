@@ -32,7 +32,7 @@ def get_args():
     parser.add_argument("--batch-size", type=int, default=32, help="number of samples for each iteration")
     parser.add_argument("--multistep", nargs="*", type=int, default=[43, 54],
                         help="epochs at which to decay learning rate")
-    parser.add_argument("--amp", action='store_true', help="Enable mixed precision training")
+    parser.add_argument("--amp",  default = False, help="Enable mixed precision training")
 
     parser.add_argument("--lr", type=float, default=2.6e-3, help="initial learning rate")
     parser.add_argument("--momentum", type=float, default=0.9, help="momentum argument for SGD optimizer")
@@ -49,8 +49,10 @@ def get_args():
 
 def main(opt):
     if torch.cuda.is_available():
-        torch.distributed.init_process_group(backend='nccl', init_method='env://')
-        num_gpus = torch.distributed.get_world_size()
+        #torch.distributed.init_process_group(backend='nccl', init_method='env://')
+        #num_gpus = torch.distributed.get_world_size()
+        num_gpus = 1
+
         torch.cuda.manual_seed(123)
     else:
         torch.manual_seed(123)
@@ -93,15 +95,15 @@ def main(opt):
         model.cuda()
         criterion.cuda()
 
-        if opt.amp:
-            from apex import amp
-            from apex.parallel import DistributedDataParallel as DDP
-            model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
-        else:
-            from torch.nn.parallel import DistributedDataParallel as DDP
-        # It is recommended to use DistributedDataParallel, instead of DataParallel
-        # to do multi-GPU training, even if there is only a single node.
-        model = DDP(model)
+        # if False:
+        #     from apex import amp
+        #     from apex.parallel import DistributedDataParallel as DDP
+        #     model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
+        # else:
+        #     from torch.nn.parallel import DistributedDataParallel as DDP
+        # # It is recommended to use DistributedDataParallel, instead of DataParallel
+        # # to do multi-GPU training, even if there is only a single node.
+        # model = DDP(model)
 
 
     if os.path.isdir(opt.log_path):

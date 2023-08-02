@@ -5,7 +5,7 @@ import numpy as np
 from tqdm.autonotebook import tqdm
 import torch
 from pycocotools.cocoeval import COCOeval
-from apex import amp
+#from apex import amp
 
 
 def train(model, train_loader, epoch, writer, criterion, optimizer, scheduler, is_amp):
